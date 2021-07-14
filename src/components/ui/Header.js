@@ -8,9 +8,12 @@ import { makeStyles } from "@material-ui/styles";
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
+import { useTheme } from "@material-ui/core/styles";
 import { Link } from "react-router-dom";
 
 import logo from "../../assets/logo.svg";
+import { menuOptions, useStyles } from "./utils";
 
 function ElevationScroll(props) {
   const { children } = props;
@@ -24,54 +27,16 @@ function ElevationScroll(props) {
   });
 }
 
-const useStyles = makeStyles((theme) => ({
-  toolbarMargin: {
-    ...theme.mixins.toolbar,
-    marginBottom: "3rem",
-  },
-  logo: {
-    height: "6rem",
-  },
-  logoContainer: {
-    padding: 0,
-    "&:hover": {
-      backgroundColor: "transparent",
-    },
-  },
-  tabContainer: {
-    marginLeft: "auto",
-  },
-  tab: {
-    ...theme.typography.tab,
-    minWidth: 10,
-    marginLeft: "25px",
-  },
-  button: {
-    ...theme.typography.estimate,
-    borderRadius: "50px",
-    marginLeft: "50px",
-    height: "45px",
-    lineHeight: "1.2",
-  },
-  menu: {
-    backgroundColor: theme.palette.common.blue,
-    color: "#fff",
-    borderRadius: 0,
-  },
-  menuItem: {
-    ...theme.typography.tab,
-    opacity: 0.7,
-    "&:hover": {
-      opacity: 1,
-    },
-  },
-}));
-
 const Header = (props) => {
+  const classes = useStyles();
+  const theme = useTheme();
+
   const [value, setValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const matches = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -83,20 +48,11 @@ const Header = (props) => {
     setOpen(false);
   };
 
-  const menuOptions = [
-    { name: "Services", link: "/services" },
-    { name: "Custom Software Development", link: "/custom-software" },
-    { name: "Mobile App Development", link: "/mobile-apps" },
-    { name: "Website Development", link: "/websites" },
-  ];
-
   const handleMenuItemClick = (index) => {
     setAnchorEl(null);
     setOpen(false);
     setSelectedIndex(index);
   };
-
-  const classes = useStyles();
 
   useEffect(() => {
     // find the appropraite url when the page is reloaded and set the value of the index to tally with window.location.pathname
@@ -165,6 +121,82 @@ const Header = (props) => {
 
   const handleChange = (value) => setValue(value);
 
+  const tabs = (
+    <>
+      <Tabs
+        value={value}
+        className={classes.tabContainer}
+        onChange={handleChange}
+        indicatorColor="primary"
+      >
+        <Tab className={classes.tab} label="Home" component={Link} to="/" />
+
+        <Tab
+          aria-owns={anchorEl ? "simple-menu" : undefined}
+          aria-haspopup={anchorEl ? true : undefined}
+          className={classes.tab}
+          onMouseOver={handleClick}
+          label="Services"
+          component={Link}
+          to="/services"
+        />
+
+        <Tab
+          className={classes.tab}
+          label="Revolution"
+          component={Link}
+          to="/revolution"
+        />
+
+        <Tab
+          className={classes.tab}
+          label="About Us"
+          component={Link}
+          to="/about"
+        />
+
+        <Tab
+          className={classes.tab}
+          label="Contact Us"
+          component={Link}
+          to="/contact"
+        />
+      </Tabs>
+      <Button variant="contained" color="secondary" className={classes.button}>
+        Free Estimate
+      </Button>
+
+      <Menu
+        id="simple-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        classes={{ paper: classes.menu }}
+        MenuListProps={{ onMouseLeave: handleClose }}
+        elevation={0}
+      >
+        {menuOptions.map((menu, index) => {
+          return (
+            <MenuItem
+              key={index}
+              onClick={() => {
+                handleClose();
+                setValue(1);
+                handleMenuItemClick(index);
+              }}
+              component={Link}
+              to={menu.link}
+              classes={{ root: classes.menuItem }}
+              selected={index === selectedIndex && value === 1}
+            >
+              {menu.name}
+            </MenuItem>
+          );
+        })}
+      </Menu>
+    </>
+  );
+
   return (
     <>
       <ElevationScroll {...props}>
@@ -179,86 +211,7 @@ const Header = (props) => {
             >
               <img className={classes.logo} src={logo} alt="company logo" />
             </Button>
-            <Tabs
-              value={value}
-              className={classes.tabContainer}
-              onChange={handleChange}
-              indicatorColor="primary"
-            >
-              <Tab
-                className={classes.tab}
-                label="Home"
-                component={Link}
-                to="/"
-              />
-
-              <Tab
-                aria-owns={anchorEl ? "simple-menu" : undefined}
-                aria-haspopup={anchorEl ? true : undefined}
-                className={classes.tab}
-                onMouseOver={handleClick}
-                label="Services"
-                component={Link}
-                to="/services"
-              />
-
-              <Tab
-                className={classes.tab}
-                label="Revolution"
-                component={Link}
-                to="/revolution"
-              />
-
-              <Tab
-                className={classes.tab}
-                label="About Us"
-                component={Link}
-                to="/about"
-              />
-
-              <Tab
-                className={classes.tab}
-                label="Contact Us"
-                component={Link}
-                to="/contact"
-              />
-            </Tabs>
-            <Button
-              variant="contained"
-              color="secondary"
-              className={classes.button}
-            >
-              Free Estimate
-            </Button>
-
-            <Menu
-              id="simple-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              classes={{ paper: classes.menu }}
-              MenuListProps={{ onMouseLeave: handleClose }}
-              elevation={0}
-            >
-              {menuOptions.map((menu, index) => {
-                return (
-                  <MenuItem
-                    key={index}
-                    onClick={() => {
-                      handleClose();
-                      setValue(1);
-                      handleMenuItemClick(index);
-                    }}
-                    component={Link}
-                    to={menu.link}
-                    classes={{ root: classes.menuItem }}
-                    selected={index === selectedIndex && value === 1}
-                  >
-                    {menu.name}
-                  </MenuItem>
-                );
-              })}
-            </Menu>
+            {matches ? null : tabs}
           </Toolbar>
         </AppBar>
       </ElevationScroll>
